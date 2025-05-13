@@ -1,0 +1,96 @@
+
+services:
+  database:
+    image: postgres:14
+    container_name: database
+    environment:
+      POSTGRES_DB: school
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  eurekaserver:
+    image: nfwq4/eurekaserver:hw4
+    container_name: eurekaserver
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: target/eurekaserver.jar
+    ports:
+      - "8761:8761"
+
+  instructor-service:
+    image: nfwq4/instructor-service:hw4
+    container_name: instructor-service
+    platform: linux/amd64
+    ports:
+      - "8070:8070"
+    depends_on:
+      - eurekaserver
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8761/eureka
+
+  course-service:
+    image: nfwq4/course-service:hw4
+    container_name: course-service
+    platform: linux/amd64
+    ports:
+      - "8071:8071"
+    depends_on:
+      - eurekaserver
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8761/eureka
+
+  student-service:
+    image: nfwq4/student-service:hw4
+    container_name: student-service
+    platform: linux/amd64
+    ports:
+      - "8073:8073"
+    depends_on:
+      - eurekaserver
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8761/eureka
+
+  gatewayserver:
+    image: nfwq4/gatewayserver:hw4
+    container_name: gatewayserver
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: target/eurekaserver.jar
+    ports:
+      - "8072:8072"
+    depends_on:
+      - eurekaserver
+      - instructor-service
+      - course-service
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eurekaserver:8761/eureka
