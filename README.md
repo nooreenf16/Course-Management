@@ -14,13 +14,9 @@ Key Features:
 
 Technologies Used
 
-Java + Spring Boot
-
-Apache Kafka
-
-Docker
-
-Relational Database - PostgreSQL
-
-API Gateway (Spring Cloud Gateway)
+Java + Spring Boot, 
+Apache Kafka, 
+Docker, 
+Relational Database - PostgreSQL, 
+API Gateway (Spring Cloud Gateway).
 
