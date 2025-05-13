@@ -13,8 +13,14 @@ Key Features:
 - Gateway layer for secure and centralized request handling
 
 Technologies Used
+
 Java + Spring Boot
+
 Apache Kafka
+
 Docker
+
 Relational Database - PostgreSQL
+
 API Gateway (Spring Cloud Gateway)
+
